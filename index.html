@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cotizador de Losas — Vigueta y Bovedilla</title>
+  <meta name="description" content="Sube la foto de tu plano y obtén al instante la cantidad de vigueta, bovedilla y el costo total de tu losa.">
+
+  <!-- Tipografías: Space Grotesk (display, trazo técnico), Inter (texto), IBM Plex Mono (datos/cotas) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Fondo tipo papel milimétrico / plano técnico. Puramente decorativo, se dibuja por CSS. -->
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <!-- Marcas de registro tipo plano arquitectónico, decorativas -->
+  <div class="reg-mark reg-mark--tl" aria-hidden="true"></div>
+  <div class="reg-mark reg-mark--tr" aria-hidden="true"></div>
+  <div class="reg-mark reg-mark--bl" aria-hidden="true"></div>
+  <div class="reg-mark reg-mark--br" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a href="#inicio" class="brand">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__name">Automation&nbsp;Onyx</span>
+    </a>
+    <nav class="site-nav" aria-label="Navegación principal">
+      <a href="#cotizar">Cotizar</a>
+      <a href="#como-funciona">Cómo funciona</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="inicio">
+      <div class="hero__content">
+        <p class="eyebrow">Cotización automática de losas</p>
+        <h1 class="hero__title">
+          Sube tu plano.<br>
+          Recibe tu cotización.<br>
+          Sin llamadas.
+        </h1>
+        <p class="hero__subtitle">
+          Nuestra IA interpreta la imagen de tu losa y calcula al instante la cantidad de
+          vigueta, bovedilla y el costo total del material.
+        </p>
+        <a href="#cotizar" class="btn btn--primary">Cotizar mi losa</a>
+      </div>
+
+      <!-- Cajetín tipo plano arquitectónico: elemento de firma del diseño -->
+      <aside class="title-block" aria-hidden="true">
+        <div class="title-block__row title-block__row--main">
+          <span class="title-block__label">Proyecto</span>
+          <span class="title-block__value">Cotización de losa</span>
+        </div>
+        <div class="title-block__grid">
+          <div class="title-block__cell">
+            <span class="title-block__label">Sistema</span>
+            <span class="title-block__value">Vigueta / Bovedilla</span>
+          </div>
+          <div class="title-block__cell">
+            <span class="title-block__label">Escala</span>
+            <span class="title-block__value">S/E</span>
+          </div>
+          <div class="title-block__cell">
+            <span class="title-block__label">Revisión</span>
+            <span class="title-block__value">01</span>
+          </div>
+          <div class="title-block__cell">
+            <span class="title-block__label">Estado</span>
+            <span class="title-block__value" data-title-block-status>En espera de plano</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ============ SUBIDA DE PLANO ============ -->
+    <section class="uploader" id="cotizar">
+      <div class="section-heading">
+        <p class="eyebrow">Paso 1</p>
+        <h2>Sube la imagen de tu plano</h2>
+        <p class="section-heading__desc">Formatos JPG, PNG o PDF de una sola página. Entre más clara la cota, más precisa la cotización.</p>
+      </div>
+
+      <form class="dropzone" id="drop-zone" data-state="empty">
+        <input
+          type="file"
+          id="file-input"
+          name="plano"
+          accept="image/png, image/jpeg, application/pdf"
+          hidden
+        >
+
+        <!-- Estado: sin archivo -->
+        <div class="dropzone__empty" data-dropzone-empty>
+          <span class="dropzone__icon" aria-hidden="true"></span>
+          <p class="dropzone__text">Arrastra tu plano aquí o</p>
+          <label for="file-input" class="btn btn--secondary">Elegir archivo</label>
+          <p class="dropzone__hint">Máximo 10&nbsp;MB</p>
+        </div>
+
+        <!-- Estado: archivo cargado (vista previa) -->
+        <div class="dropzone__preview" data-dropzone-preview hidden>
+          <img id="preview-image" alt="Vista previa del plano cargado">
+          <div class="dropzone__preview-info">
+            <span id="preview-filename" class="mono"></span>
+            <button type="button" class="btn-text" id="remove-file-btn">Quitar</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="uploader__actions">
+        <button type="button" class="btn btn--primary" id="analyze-btn" disabled>
+          Analizar plano
+        </button>
+        <p class="uploader__disclaimer">
+          Cotización preliminar generada por IA. Sujeta a revisión de un ingeniero antes de compra.
+        </p>
+      </div>
+
+      <!-- Estado de carga mientras la IA interpreta el plano -->
+      <div class="loading" id="loading-indicator" hidden>
+        <span class="loading__spinner" aria-hidden="true"></span>
+        <p id="loading-message">Interpretando tu plano…</p>
+      </div>
+
+      <!-- Estado de error -->
+      <div class="alert alert--error" id="error-message" hidden>
+        <p data-error-text>No pudimos leer las medidas de tu plano. Intenta con una foto más clara o de mayor resolución.</p>
+      </div>
+    </section>
+
+    <!-- ============ RESULTADOS ============ -->
+    <section class="results" id="resultados" hidden>
+      <div class="section-heading">
+        <p class="eyebrow">Paso 2</p>
+        <h2>Tu cotización</h2>
+      </div>
+
+      <div class="results__grid">
+
+        <!-- Medidas detectadas por la IA, editables por el usuario antes de confirmar -->
+        <div class="results__card results__card--detected">
+          <h3>Medidas detectadas</h3>
+          <dl class="spec-list" id="detected-specs">
+            <div class="spec-list__row">
+              <dt>Largo</dt>
+              <dd><span id="spec-largo" class="mono">—</span> m</dd>
+            </div>
+            <div class="spec-list__row">
+              <dt>Ancho</dt>
+              <dd><span id="spec-ancho" class="mono">—</span> m</dd>
+            </div>
+            <div class="spec-list__row">
+              <dt>Área</dt>
+              <dd><span id="spec-area" class="mono">—</span> m²</dd>
+            </div>
+            <div class="spec-list__row">
+              <dt>Sentido de armado</dt>
+              <dd><span id="spec-sentido" class="mono">—</span></dd>
+            </div>
+          </dl>
+          <p class="results__confirm-note">¿Las medidas son correctas? <button type="button" class="btn-text" id="edit-specs-btn">Corregir medidas</button></p>
+        </div>
+
+        <!-- Cantidades calculadas -->
+        <div class="results__card results__card--quantities">
+          <h3>Materiales</h3>
+          <table class="quote-table" id="quote-table">
+            <thead>
+              <tr>
+                <th scope="col">Material</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">P. unitario</th>
+                <th scope="col">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Vigueta</th>
+                <td id="qty-vigueta" class="mono">—</td>
+                <td id="price-vigueta" class="mono">—</td>
+                <td id="subtotal-vigueta" class="mono">—</td>
+              </tr>
+              <tr>
+                <th scope="row">Bovedilla</th>
+                <td id="qty-bovedilla" class="mono">—</td>
+                <td id="price-bovedilla" class="mono">—</td>
+                <td id="subtotal-bovedilla" class="mono">—</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="quote-table__total">
+                <th scope="row" colspan="3">Total estimado</th>
+                <td id="total-cost" class="mono">—</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="results__actions">
+        <button type="button" class="btn btn--primary" id="request-quote-btn">Solicitar cotización formal</button>
+        <button type="button" class="btn btn--secondary" id="new-quote-btn">Cotizar otra losa</button>
+      </div>
+    </section>
+
+    <!-- ============ CÓMO FUNCIONA ============ -->
+    <section class="how-it-works" id="como-funciona">
+      <div class="section-heading">
+        <p class="eyebrow">El proceso</p>
+        <h2>Tres pasos, sin llamadas</h2>
+      </div>
+      <ol class="steps">
+        <li class="steps__item">
+          <span class="steps__number">01</span>
+          <h3>Sube tu plano</h3>
+          <p>Una foto o PDF de la losa que quieres construir, con sus medidas visibles.</p>
+        </li>
+        <li class="steps__item">
+          <span class="steps__number">02</span>
+          <h3>La IA lo interpreta</h3>
+          <p>Detectamos el claro entre apoyos, el sentido de armado y el área de la losa.</p>
+        </li>
+        <li class="steps__item">
+          <span class="steps__number">03</span>
+          <h3>Recibes tu cotización</h3>
+          <p>Cantidad exacta de vigueta y bovedilla, con el costo total desglosado.</p>
+        </li>
+      </ol>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="current-year">2026</span> Automation Onyx. Cotización preliminar; no sustituye la revisión de un ingeniero estructurista.</p>
+  </footer>
+
+  <script src="js/script.js" defer></script>
+</body>
+</html>
