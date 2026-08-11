@@ -124,6 +124,11 @@
         </p>
       </div>
 
+      <!-- Estado de carga mientras la IA interpreta el plano -->
+      <div class="loading" id="loading-indicator" hidden>
+        <span class="loading__spinner" aria-hidden="true"></span>
+        <p id="loading-message">Interpretando tu plano…</p>
+      </div>
 
       <!-- Estado de error -->
       <div class="alert alert--error" id="error-message" hidden>
@@ -234,7 +239,7 @@
   </main>
 
   <footer class="site-footer">
-        <p>© <span id="current-year">2026</span> Automation Onyx. Cotización preliminar; no sustituye la revisión de un ingeniero estructurista. <a href="privacidad.html" style="text-decoration: underline;">Aviso de privacidad</a></p>
+        <p>© <span id="current-year">2026</span> Automation Onyx. Cotización preliminar; no sustituye la revisión de un ingeniero estructurista. </p>
   </footer>
 
   <script src="js/script.js" defer></script>
