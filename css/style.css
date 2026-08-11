@@ -1228,3 +1228,8 @@ main {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Oculta el contenedor por completo cuando tiene el atributo hidden o la clase d-none */
+.dropzone__preview[hidden] {
+  display: none !important;
+}
